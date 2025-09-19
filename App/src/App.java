@@ -12,33 +12,48 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+
 
 public class App extends Application {
 
-    /**This is the main container for all the items to make sure they're aligned */
-    private static SplitPane myMainContainer;
+    // === Constants ===
 
-    private static SplitPane myTimerListContainer;
-
-    private static VBox myListContainer;
-
-    private static BorderPane myTimerContainer;
-
-    private static HBox myToDoTextButton;
-
-    private static ButtonBar myAddRemoveBar = new ButtonBar();
-
-    private static Button myAddButton = new Button("Add");
-
-    private static Button myRemoveButton = new Button("Remove");
-
-    private static TextField myToDoText = new TextField();
-
+    /** The fixed size (width and height) of the application window. */
     private static final int SIZE = 400;
 
-    private static Text myTestText1 = new Text("Test text1");
-
+    // === UI Components: Text Elements ===
+    /** Sample text displayed in the timer section. */
     private static Text myTestText2 = new Text("Test text2");
+
+    // === UI Components: Input and Buttons ===
+
+    /** Text field where users can enter to-do items. */
+    private static TextField myToDoText = new TextField();
+    /** Button to add a new to-do item. */
+    private static Button myAddButton = new Button("Add");
+    /** Button to remove a selected to-do item. */
+    private static Button myRemoveButton = new Button("Remove");
+    /** Container for the Add and Remove buttons. */
+    private static ButtonBar myAddRemoveBar = new ButtonBar();
+
+    // === Layout Containers ===
+
+    /** Horizontal container holding the text field and button bar. */
+    private static HBox myToDoTextButton;
+    /** Vertical container for the list of tasks. */
+    private static VBox myListContainer;
+    /** BorderPane container for the timer display. */
+    private static BorderPane myTimerContainer;
+    /** SplitPane dividing the task list and timer sections horizontally. */
+    private static SplitPane myTimerListContainer;
+    /** Main SplitPane dividing the screen vertically between content and input. */
+    private static SplitPane myMainContainer;
+
+    private static ArrayList<Integer> myTimes = new ArrayList<>();
+
+    private static ArrayList<Text>  myItems = new ArrayList<>();
+
 
 
 
@@ -55,7 +70,7 @@ public class App extends Application {
         myToDoTextButton.setPadding(new javafx.geometry.Insets(10));
 
         // Create top split: list and timer
-        myListContainer = new VBox(myTestText1);
+        myListContainer = new VBox();
         myTimerContainer = new BorderPane(myTestText2);
         myTimerListContainer = new SplitPane(myListContainer, myTimerContainer);
         myTimerListContainer.setDividerPositions(0.5);
@@ -74,10 +89,30 @@ public class App extends Application {
         stage.setTitle("Time on task");
         stage.setScene(scene);
         stage.setResizable(false);
+
+
+        myAddButton.setOnAction(e -> {
+
+            if (!myToDoText.getText().equalsIgnoreCase("")) {
+                myItems.add( new Text(myToDoText.getText()));
+                myListContainer.getChildren().add(myItems.getLast());
+                myToDoText.setText("");
+
+                System.out.println(myItems.size());
+
+            }
+
+
+        });
+        myRemoveButton.setOnAction(e -> {
+            myItems.getLast().setStrikethrough(true);
+        });
         stage.show();
 
 
     }
+
+
 
     public static void main(String[] args) {
         launch();
