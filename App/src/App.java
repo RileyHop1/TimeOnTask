@@ -1,3 +1,6 @@
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -11,8 +14,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 public class App extends Application {
@@ -24,7 +30,7 @@ public class App extends Application {
 
     // === UI Components: Text Elements ===
     /** Sample text displayed in the timer section. */
-    private static Text myTestText2 = new Text("Test text2");
+    private static Text myTimerText = new Text("");
 
     // === UI Components: Input and Buttons ===
 
@@ -50,9 +56,13 @@ public class App extends Application {
     /** Main SplitPane dividing the screen vertically between content and input. */
     private static SplitPane myMainContainer;
 
+    private static Text mySecectedText;
+
     private static ArrayList<Integer> myTimes = new ArrayList<>();
 
     private static ArrayList<Text>  myItems = new ArrayList<>();
+
+    private static LinkedHashMap<Text, Integer> myItemToTime = new LinkedHashMap<>();
 
 
 
@@ -71,7 +81,7 @@ public class App extends Application {
 
         // Create top split: list and timer
         myListContainer = new VBox();
-        myTimerContainer = new BorderPane(myTestText2);
+        myTimerContainer = new BorderPane(myTimerText);
         myTimerListContainer = new SplitPane(myListContainer, myTimerContainer);
         myTimerListContainer.setDividerPositions(0.5);
 
@@ -90,22 +100,65 @@ public class App extends Application {
         stage.setScene(scene);
         stage.setResizable(false);
 
+        Timeline timer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+
+            if (mySecectedText != null && !mySecectedText.isStrikethrough()) {
+                int currentTime = myItemToTime.get(mySecectedText);
+                myItemToTime.put(mySecectedText, currentTime + 1);
+                myTimerText.setText(String.valueOf(myItemToTime.get(mySecectedText)));
+            }
+
+        }));
+        timer.setCycleCount(Animation.INDEFINITE); // run forever
+        timer.play();
+
 
         myAddButton.setOnAction(e -> {
 
             if (!myToDoText.getText().equalsIgnoreCase("")) {
-                myItems.add( new Text(myToDoText.getText()));
-                myListContainer.getChildren().add(myItems.getLast());
-                myToDoText.setText("");
+                myItemToTime.put( new Text(myToDoText.getText()), 0);
+                Map.Entry<Text, Integer> lastEntry = null;
+                for (Map.Entry<Text, Integer> entry : myItemToTime.entrySet()) {
+                    lastEntry = entry;
+                }
 
-                System.out.println(myItems.size());
+                if (lastEntry != null) {
+                    myListContainer.getChildren().add(lastEntry.getKey());
+
+                    lastEntry.getKey().setOnMouseClicked(event -> {
+                        Text sourceNode = (Text) event.getSource();
+
+                        if (mySecectedText != null && mySecectedText != sourceNode) {
+                            mySecectedText.setStyle(""); // reset style
+                        }
+
+                        if (sourceNode == mySecectedText) {
+                            sourceNode.setStrikethrough(!sourceNode.isStrikethrough());
+                        } else {
+                            mySecectedText = sourceNode;
+                            myTimerText.setText(String.valueOf(myItemToTime.get(mySecectedText)));
+                        }
+
+
+                        mySecectedText.setStyle("-fx-fill: blue; -fx-font-weight: bold;");
+
+                    });
+                }
+
+                myToDoText.setText("");
 
             }
 
 
         });
         myRemoveButton.setOnAction(e -> {
-            myItems.getLast().setStrikethrough(true);
+            if (mySecectedText != null) {
+                myListContainer.getChildren().remove(mySecectedText);
+                myItemToTime.remove(mySecectedText);
+            }
+
+
+
         });
         stage.show();
 
