@@ -9,9 +9,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -99,6 +103,11 @@ public class App extends Application {
         stage.setTitle("Time on task");
         stage.setScene(scene);
         stage.setResizable(false);
+
+
+        myTimerText.setFont(Font.font("Consolas", FontWeight.BOLD, 25));
+        myTimerText.setFill(Color.BLUE);
+        myTimerText.setEffect(new DropShadow(5, Color.BLACK));
 
         Timeline timer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
 
